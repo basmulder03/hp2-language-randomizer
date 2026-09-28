@@ -1,0 +1,11 @@
+--- a/HGame/Classes/M212FEBindPage.uc
++++ b/HGame/Classes/M212FEBindPage.uc
+@@ -440,7 +440,7 @@
+ 	{
+ 		tmpStr 					= "0000" $ string(I);
+ 		tmpStr 					= "Localized_kn_" $ Right(tmpStr,4);
+-		LocalizedKeyName[I] 	= Localize("all",tmpStr,"HPMenu");
++		LocalizedKeyName[I] 	= class'LanguagePicker'.static.LocalizeMenu(tmpStr);
+ 	}*/
+ 	// Omega: Far simpler than KW's solution but gonna require people to translate the file here too
+ 	for(i = 0; i < 255; i++)

@@ -1,0 +1,15 @@
+--- a/HGame/Classes/VendorManager.uc
++++ b/HGame/Classes/VendorManager.uc
+@@ -220,10 +220,12 @@
+ 				tcue.CutNotifyActor = self;
+ 				tcue.SetupTimer(fSoundLen + 0.5,strCue);
+ 				harry(Level.PlayerHarryActor).ClientMessage("Indefinite");
++				class'LanguagePicker'.static.ResetToEnglish();
+ 				harry(Level.PlayerHarryActor).myHUD.SetSubtitleText(strDialog,fSoundLen);
+ 			} 
+ 			else 
+ 			{
++				class'LanguagePicker'.static.ResetToEnglish();
+ 				harry(Level.PlayerHarryActor).myHUD.SetSubtitleText(strDialog,0.0);
+ 				CutCue(strCue);
+ 			}

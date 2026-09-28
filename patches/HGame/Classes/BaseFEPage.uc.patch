@@ -1,0 +1,12 @@
+--- a/HGame/Classes/BaseFEPage.uc
++++ b/HGame/Classes/BaseFEPage.uc
+@@ -26,7 +26,8 @@
+ 
+ function string GetLocalFEString (string strId)
+ {
+-	return Localize("All",strId,"HPMenu");
++	// LanguagePicker: menu labels in a random language (stock text when off).
++	return class'LanguagePicker'.static.LocalizeMenu(strId);
+ }
+ 
+ function Paint (Canvas Canvas, float X, float Y)

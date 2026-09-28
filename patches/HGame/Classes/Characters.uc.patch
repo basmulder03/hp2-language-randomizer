@@ -1,0 +1,10 @@
+--- a/HGame/Classes/Characters.uc
++++ b/HGame/Classes/Characters.uc
+@@ -761,6 +761,7 @@
+   }
+   //UTPT didn't decompile this for some reason -AdamJD
+   strDialog = HandleFacialExpression(strDialog, fSoundLen);
++  class'LanguagePicker'.static.ResetToEnglish();
+   harry(Level.PlayerHarryActor).myHUD.SetSubtitleText(strDialog, fSoundLen);
+   tcue = Spawn(class'TimedCue');
+   tcue.CutNotifyActor = self;

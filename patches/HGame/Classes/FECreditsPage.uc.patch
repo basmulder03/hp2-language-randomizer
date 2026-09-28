@@ -1,0 +1,12 @@
+--- a/HGame/Classes/FECreditsPage.uc
++++ b/HGame/Classes/FECreditsPage.uc
+@@ -10,7 +10,8 @@
+ {
+   if ( CreditsTextWindow == None )
+   {
+-    CreditsTextWindow = HPCreditsControl(CreateControl(Class'HPCreditsControl',50.0,10.0,WinWidth - 100,WinHeight - 20));
++    // LanguagePicker: language overview + per-language voice casts.
++    CreditsTextWindow = HPCreditsControl(CreateControl(Class'LangCreditsControl',50.0,10.0,WinWidth - 100,WinHeight - 20));
+   }
+ }
+ 

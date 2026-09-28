@@ -1,0 +1,31 @@
+--- a/HGame/Classes/HPawn.uc
++++ b/HGame/Classes/HPawn.uc
+@@ -293,6 +293,19 @@
+   Super.DestroyControllers();
+ }
+ 
++// LanguagePicker: Actor.SubstituteDialog is the hook CutCommand_M212Say
++// (cutscenes) and DeliverLocalizedDialog call after resolving the stock
++// English sound+text, before playing it. Route it through the same
++// randomization as HChar.DoBumpLine and baseDialog.FindDialog.
++// Lives on HPawn rather than HChar: cutscene speakers include non-HChar
++// HPawns -- the Narrator is a HiddenHPawn, Riddle's diary and Lee
++// Jordan's commentary are HProps, and BaseCam speaks in NickFrozen --
++// and every one of them fell through to Actor's English-only default.
++event SubstituteDialog(Sound InSound, String InTxt, out Sound Replacement, out String ReplacmentTxt)
++{
++	class'LanguagePicker'.static.SubstituteDialogHelper(InSound, InTxt, Replacement, ReplacmentTxt, "AllDialog", "HPdialog", self);
++}
++
+ function GlobalCutBypass()
+ {
+   Super.GlobalCutBypass();
+@@ -1193,7 +1206,7 @@
+   }
+   if ( SpellIncantation != "" )
+   {
+-    PlaySound(Sound(DynamicLoadObject("AllDialog." $ SpellIncantation,Class'Sound')),SLOT_Talk,,True);
++    PlaySound(class'LanguagePicker'.static.ResolveSoundOnly(SpellIncantation, self),SLOT_Talk,,True);
+   }
+   if ( SpellSound != None )
+   {

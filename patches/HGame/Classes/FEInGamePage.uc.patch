@@ -1,0 +1,62 @@
+--- a/HGame/Classes/FEInGamePage.uc
++++ b/HGame/Classes/FEInGamePage.uc
+@@ -47,6 +47,8 @@
+ var HGameButton InputButton;
+ var HGameButton CreditsButton;
+ var HGameButton SoundVideoButton;
++var HGameButton LangRandomizerButton; // LanguagePicker settings page
++var Texture textureLangRandomizerRO;
+ var HGameSmallButton VersionButton;
+ var Texture textureChallengesRO;
+ var Texture textureMapRO;
+@@ -425,6 +427,20 @@
+ 	SoundVideoButton.DownTexture = SoundVideoButton.OverTexture;
+ 	SoundVideoButton.DownSound = soundBottomClick;
+   
++	// LanguagePicker settings page: bottom-row icon left of the sound/video
++	// button, drawn in the stock icon style (MenuIcons.uc).
++	LangRandomizerButton = HGameButton(CreateAlignedControl(Class'HGameButton',460.0,338.0,48.0,48.0,,AT_Right));
++	LangRandomizerButton.ToolTipString = class'FELangRandomizerPage'.default.TitleText;
++	LangRandomizerButton.UpTexture = Texture(DynamicLoadObject("HGame.LangPicker.HP2MenuLanguages",Class'Texture'));
++	// Imported with Flags=0; turn on alpha layering here so the soft
++	// edges and transparent corners render like the stock icons.
++	LangRandomizerButton.UpTexture.bAlphaBlend = True;
++	LangRandomizerButton.OverTexture = LangRandomizerButton.UpTexture;
++	LangRandomizerButton.DownTexture = LangRandomizerButton.OverTexture;
++	LangRandomizerButton.DownSound = soundBottomClick;
++	textureLangRandomizerRO = Texture(DynamicLoadObject("HGame.LangPicker.HP2MenuLanguagesOver",Class'Texture'));
++	textureLangRandomizerRO.bAlphaBlend = True;
++  
+ 	textureChallengesRO = Texture(DynamicLoadObject("HP2_Menu.HP2ChallengesBarWet",Class'WetTexture'));
+ 	textureMapRO = Texture(DynamicLoadObject("HP2_Menu.Icons.HP2MapsWet",Class'WetTexture'));
+ 	textureDuelRO = Texture(DynamicLoadObject("HP2_Menu.Icons.HP2MenuWizardDuelWet",Class'WetTexture'));
+@@ -492,6 +508,10 @@
+ 				FEBook(book).ChangePageNamed("SOUNDVIDEO");
+ 				break;
+       
++			case LangRandomizerButton:
++				FEBook(book).ChangePageNamed("LANGRANDOMIZER");
++				break;
++      
+ 			case QuitButton:
+ 				ConfirmQuit = doHPMessageBox(GetLocalFEString("InGameMenu_0026"), GetLocalFEString("Shared_Menu_0003"), GetLocalFEString("Shared_Menu_0004"));
+ 				break;
+@@ -566,6 +586,10 @@
+ 					SetRollover(SoundVideoButton,textureSoundRO,soundBottomRO,True);
+ 					break;
+ 				
++				case LangRandomizerButton:
++					SetRollover(LangRandomizerButton,textureLangRandomizerRO,soundBottomRO,False);
++					break;
++				
+ 				case FolioButton:
+ 					SetRollover(FolioButton,textureFolioRO,soundFolioRO,False);
+ 					break;
+@@ -592,6 +616,7 @@
+ 					case QuitButton:
+ 					case InputButton:
+ 					case SoundVideoButton:
++					case LangRandomizerButton:
+ 					case FolioButton:
+ 					case CreditsButton:
+ 					case HousepointsButton:

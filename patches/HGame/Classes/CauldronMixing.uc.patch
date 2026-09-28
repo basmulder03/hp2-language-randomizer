@@ -1,0 +1,10 @@
+--- a/HGame/Classes/CauldronMixing.uc
++++ b/HGame/Classes/CauldronMixing.uc
+@@ -228,6 +228,7 @@
+ 		tcue = Spawn(Class'TimedCue');
+ 		tcue.CutNotifyActor = self;
+ 		tcue.SetupTimer(fSoundLen + 0.5,strCUE_CAULDRON_NOT_AVAIL_LINE);
++		class'LanguagePicker'.static.ResetToEnglish();
+ 		harry(Level.PlayerHarryActor).myHUD.SetSubtitleText(strDialog,fSoundLen);
+ 	}
+ }

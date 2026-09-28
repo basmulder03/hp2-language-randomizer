@@ -1,0 +1,82 @@
+--- a/HGame/Classes/FEBook.uc
++++ b/HGame/Classes/FEBook.uc
+@@ -77,6 +77,8 @@
+ var baseFEPage LoadPage;
+ var baseFEPage InputPage;
+ var baseFEPage SoundVideoPage;
++var baseFEPage LangRandomizerPage; // LanguagePicker settings page
++var baseFEPage LangStatsPage; // LanguagePicker run statistics
+ var baseFEPage SplashPage;
+ var baseFEPage LangPage;
+ var baseFEPage MapPage;
+@@ -160,6 +162,8 @@
+ 	LoadPage.RepositionChildControls();
+ 	InputPage.RepositionChildControls();
+ 	SoundVideoPage.RepositionChildControls();
++	LangRandomizerPage.RepositionChildControls();
++	LangStatsPage.RepositionChildControls();
+ 	SplashPage.RepositionChildControls();
+ 	LangPage.RepositionChildControls();
+ 	MapPage.RepositionChildControls();
+@@ -182,6 +186,8 @@
+ 	LoadPage.ResolutionChanged(W, H);
+ 	InputPage.ResolutionChanged(W, H);
+ 	SoundVideoPage.ResolutionChanged(W, H);
++	LangRandomizerPage.ResolutionChanged(W, H);
++	LangStatsPage.ResolutionChanged(W, H);
+ 	SplashPage.ResolutionChanged(W, H);
+ 	LangPage.ResolutionChanged(W, H);
+ 	MapPage.ResolutionChanged(W, H);
+@@ -243,6 +249,8 @@
+ 			break;
+ 	
+ 		case SoundVideoPage:
++		case LangRandomizerPage:
++		case LangStatsPage:
+ 			//bShowBackground = True;
+ 			//curBackground = Back1Background;
+ 			
+@@ -375,6 +383,12 @@
+ 		case "SOUNDVIDEO":
+ 			Return SoundVideoPage;
+ 			break;
++		case "LANGRANDOMIZER":
++			Return LangRandomizerPage;
++			break;
++		case "LANGSTATS":
++			Return LangStatsPage;
++			break;
+ 		case "LANG":
+ 		case "LANGUAGE":
+ 			Return LangPage;
+@@ -480,6 +494,12 @@
+ 	SoundVideoPage = baseFEPage(CreateWindow(Class'FESoundVideoPage', 0.0, 0.0, WinWidth, WinHeight));
+ 	SoundVideoPage.book = self;
+ 	SoundVideoPage.HideWindow();
++	LangRandomizerPage = baseFEPage(CreateWindow(Class'FELangRandomizerPage', 0.0, 0.0, WinWidth, WinHeight));
++	LangRandomizerPage.book = self;
++	LangRandomizerPage.HideWindow();
++	LangStatsPage = baseFEPage(CreateWindow(Class'FELangStatsPage', 0.0, 0.0, WinWidth, WinHeight));
++	LangStatsPage.book = self;
++	LangStatsPage.HideWindow();
+ 	QuidPage = baseFEPage(CreateWindow(Class'FEQuidPage', 0.0, 0.0, WinWidth, WinHeight));
+ 	QuidPage.book = self;
+ 	QuidPage.HideWindow();
+@@ -528,6 +548,8 @@
+ 	LoadPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
+ 	InputPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
+ 	SoundVideoPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
++	LangRandomizerPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
++	LangStatsPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
+ 	SplashPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
+ 	LangPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
+ 	MapPage.ResolutionChanged(Root.RealWidth, Root.RealHeight);
+@@ -549,6 +571,8 @@
+ 	LoadPage.RepositionChildControls();
+ 	InputPage.RepositionChildControls();
+ 	SoundVideoPage.RepositionChildControls();
++	LangRandomizerPage.RepositionChildControls();
++	LangStatsPage.RepositionChildControls();
+ 	SplashPage.RepositionChildControls();
+ 	LangPage.RepositionChildControls();
+ 	MapPage.RepositionChildControls();

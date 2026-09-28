@@ -1,0 +1,45 @@
+--- a/HGame/Classes/HChar.uc
++++ b/HGame/Classes/HChar.uc
+@@ -728,6 +728,7 @@
+ 	local TimedCue tcue;
+ 	local int ri;
+ 	local int rm;
++	local string PickedLang;
+ 
+ 	if (  !bUseBumpLine &&  !bJustTalk )
+ 	{
+@@ -800,11 +801,22 @@
+ 	Level.PlayerHarryActor.ClientMessage("BUMPLINES:" $ string(self) $ " looking for BumpLine ID:" $ sSayTextID);
+ 	// DivingDeep39: Replaced " "all" " and "BumpDialog" with the Section and LocalizationFile vars.
+ 	//sSayText = Localize("all",sSayTextID,"BumpDialog");
+-	sSayText = Localize(Section,sSayTextID,LocalizationFile);
+-	if ( InStr(sSayText,"<?") > -1 )
++	if ( Package == "AllDialog" && LocalizationFile == "BumpDialog" )
+ 	{
+-		Level.PlayerHarryActor.ClientMessage("ERROR BUMPLINES:" $ string(self) $ " couldn't find BumpLine ID:" $ sSayTextID $ " from BumpLineSet:" $ BumpLineSet);
+-		return;
++		class'LanguagePicker'.static.ResolveLine(sSayTextID, Package, LocalizationFile, PickedLang, dlgSound, sSayText, self, 2); // 2 = LanguagePicker.LT_Chatter
++	}
++	else
++	{
++		sSayText = Localize(Section,sSayTextID,LocalizationFile);
++		if ( InStr(sSayText,"<?") > -1 )
++		{
++			Level.PlayerHarryActor.ClientMessage("ERROR BUMPLINES:" $ string(self) $ " couldn't find BumpLine ID:" $ sSayTextID $ " from BumpLineSet:" $ BumpLineSet);
++			return;
++		}
++		dlgSound = Sound(DynamicLoadObject(Package$"."$sSayTextID,Class'Sound'));
++		// LanguagePicker: this line isn't randomized, so reset the subtitle
++		// language; otherwise it would show the previous line's flag.
++		class'LanguagePicker'.static.ResetToEnglish();
+ 	}
+ 	SavedPreBumpState = GetStateName();
+ 	SavedPreBumpRot = Rotation;
+@@ -816,7 +828,6 @@
+ 	CutNotifyActor = self;
+ 	// DivingDeep39: Replaced "AllDialog" with the Package var.
+ 	//dlgSound = Sound(DynamicLoadObject("AllDialog." $sSayTextID,Class'Sound'));
+-	dlgSound = Sound(DynamicLoadObject(Package$"."$sSayTextID,Class'Sound'));
+ 	if ( dlgSound != None )
+ 	{
+ 		sndLen = GetSoundDuration(dlgSound);

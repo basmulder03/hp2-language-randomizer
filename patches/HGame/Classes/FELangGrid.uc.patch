@@ -1,0 +1,11 @@
+--- a/HGame/Classes/FELangGrid.uc
++++ b/HGame/Classes/FELangGrid.uc
+@@ -107,6 +107,8 @@
+   if ( Row != SelectedRow )
+   {
+     SelectedRow = Row;
++    // LanguagePicker: plain English here, so reset the subtitle language.
++    class'LanguagePicker'.static.ResetToEnglish();
+     HPHud(harry(Root.Console.Viewport.Actor).myHUD).SetSubtitleText(browser.MasterText[Row],360.0);
+     snd = Sound(DynamicLoadObject("AllDialog." $ browser.MasterList[Row],Class'Sound'));
+     harry(Root.Console.Viewport.Actor).PlaySound(snd);

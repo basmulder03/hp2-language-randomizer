@@ -1,0 +1,192 @@
+--- a/HGame/Classes/harry.uc
++++ b/HGame/Classes/harry.uc
+@@ -169,6 +169,23 @@
+ var travel int DuelRankHarry;
+ var travel int DuelRankOppon;
+ var travel int DuelRankBeans;
++// LanguagePicker run statistics: per-language line counts, travel so they
++// follow the player across levels and into save games. Filled only by
++// LanguagePicker.RecordLine; rows of the keyed tables are claimed on
++// first use (Key == "" means unused).
++struct LangStatRow
++{
++  var string Key;
++  var int Count[17];
++};
++var travel LangStatRow LangStatsType[5];
++var travel LangStatRow LangStatsSpeaker[80];
++var travel LangStatRow LangStatsLevel[48];
++// LanguagePicker: seed for the per-character/per-level language modes
++// (0 = not chosen yet; set on first use, then fixed for this run).
++var travel int LangRunSeed;
++// LanguagePicker: seconds of voice heard per language this run.
++var travel float LangStatSeconds[17];
+ var globalconfig bool bDisableDialog;
+ var ParticleFX SpongifyFX[2];
+ var bool ClearMessages;
+@@ -2454,6 +2471,47 @@
+   Summon(ClassName);
+ }
+ 
++// LanguagePicker: hidden redub pool toggle. "Redub" flips it, "Redub on" /
++// "Redub off" set it explicitly. Saved to the ini like the other settings.
++// LanguagePicker: replay the last subtitled line in another language.
++exec function ReplayLine ()
++{
++  local string L;
++  local string T;
++  local Sound S;
++
++  if ( !class'LanguagePicker'.static.PickReplay(L,S,T) )
++  {
++    ClientMessage("ReplayLine: nothing to replay yet");
++    return;
++  }
++  PlaySound(S,SLOT_Talk,1.4,,100000.0,,True);
++  MyHud.SetSubtitleText(T,GetSoundDuration(S));
++}
++
++exec function Redub (optional string OnOff)
++{
++  local bool b;
++
++  if ( OnOff ~= "on" || OnOff ~= "1" || OnOff ~= "true" )
++    b = True;
++  else if ( OnOff ~= "off" || OnOff ~= "0" || OnOff ~= "false" )
++    b = False;
++  else
++    b = !class'LanguagePicker'.static.IsRedubEnabled();
++  class'LanguagePicker'.static.SetRedubEnabled(b);
++  if ( b )
++    ClientMessage("Redub: ON");
++  else
++    ClientMessage("Redub: OFF");
++}
++
++exec function DebugSpamLine (int count, string dialogID)
++{
++  ClientMessage("DEBUGSPAMLINE WRAPPER CALLED dialogID=" $ dialogID $ " count=" $ count);
++  class'LanguagePicker'.static.DebugSpamLine(dialogID, count);
++}
++
+ event Landed (Vector HitNormal)
+ {
+   GroundSpeed = GroundRunSpeed;
+@@ -3193,7 +3251,7 @@
+   }
+   if ( SpellIncantation != "" )
+   {
+-    PlaySound(Sound(DynamicLoadObject("AllDialog." $ SpellIncantation,Class'Sound')),SLOT_Talk,0.75,True);
++    PlaySound(class'LanguagePicker'.static.ResolveSoundOnly(SpellIncantation, self),SLOT_Talk,0.75,True);
+   }
+ }
+ 
+@@ -3564,7 +3622,7 @@
+       //}
+       if ( SpellIncantation != "" )
+       {
+-        PlaySound(Sound(DynamicLoadObject("AllDialog." $ SpellIncantation,Class'Sound')),SLOT_Talk,0.75,True);
++        PlaySound(class'LanguagePicker'.static.ResolveSoundOnly(SpellIncantation, self),SLOT_Talk,0.75,True);
+       }
+     }
+     return;
+@@ -5434,6 +5492,81 @@
+ 		return Super.CutQuestion(question);
+ }
+ 
++// LanguagePicker run statistics accessors. The tables are too large for
++// UnrealScript's 4KB context-expression limit, so LanguagePicker and the
++// stats page go through these instead of touching the arrays directly.
++// Table: 0 = line type (row = LanguagePicker.LT_*), 1 = speaker, 2 = level.
++function int LangStatNumRows(int Table)
++{
++  if ( Table == 0 )
++    return ArrayCount(LangStatsType);
++  if ( Table == 1 )
++    return ArrayCount(LangStatsSpeaker);
++  return ArrayCount(LangStatsLevel);
++}
++
++function string LangStatKey(int Table, int Row)
++{
++  if ( Table == 0 )
++    return LangStatsType[Row].Key;
++  if ( Table == 1 )
++    return LangStatsSpeaker[Row].Key;
++  return LangStatsLevel[Row].Key;
++}
++
++function int LangStatGet(int Table, int Row, int Lang)
++{
++  if ( Table == 0 )
++    return LangStatsType[Row].Count[Lang];
++  if ( Table == 1 )
++    return LangStatsSpeaker[Row].Count[Lang];
++  return LangStatsLevel[Row].Count[Lang];
++}
++
++function LangStatAdd(int Table, int Row, int Lang)
++{
++  if ( Table == 0 )
++    LangStatsType[Row].Count[Lang]++;
++  else if ( Table == 1 )
++    LangStatsSpeaker[Row].Count[Lang]++;
++  else
++    LangStatsLevel[Row].Count[Lang]++;
++}
++
++// Row for Key in a keyed table (1 or 2), claiming the first unused row if
++// it's new. When the table is full, the last row becomes a catch-all.
++function int LangStatRowFor(int Table, string Key)
++{
++  local int i, n;
++
++  n = LangStatNumRows(Table);
++  for ( i = 0; i < n; i++ )
++  {
++    if ( LangStatKey(Table, i) ~= Key )
++      return i;
++    if ( LangStatKey(Table, i) == "" )
++    {
++      if ( Table == 1 )
++        LangStatsSpeaker[i].Key = Key;
++      else
++        LangStatsLevel[i].Key = Key;
++      return i;
++    }
++  }
++  if ( Table == 1 )
++    LangStatsSpeaker[n - 1].Key = "OTHER";
++  else
++    LangStatsLevel[n - 1].Key = "OTHER";
++  return n - 1;
++}
++
++// LanguagePicker: randomize Harry's own cutscene and scripted lines (harry
++// is a PlayerPawn, so the HPawn override doesn't cover him).
++event SubstituteDialog(Sound InSound, String InTxt, out Sound Replacement, out String ReplacmentTxt)
++{
++	class'LanguagePicker'.static.SubstituteDialogHelper(InSound, InTxt, Replacement, ReplacmentTxt, "AllDialog", "HPdialog", self);
++}
++
+ function bool CutCommand (string Command, optional string cue, optional bool bFastFlag)
+ {
+ 	local string sActualCommand;
+@@ -6096,7 +6229,7 @@
+       break;
+       default:
+     }
+-    PlaySound(Sound(DynamicLoadObject("AllDialog." $ SpellIncantation,Class'Sound')),SLOT_Talk);
++    PlaySound(class'LanguagePicker'.static.ResolveSoundOnly(SpellIncantation, self),SLOT_Talk);
+     PlaySound(Sound'Dueling_EXP_smack',SLOT_Misc);
+     spell.Reflect(self,FMin(5.0,spell.SpellCharge + (5 - spell.SpellCharge) * 0.1),FMin(1000.0,spell.Speed + (1000 - spell.Speed) * 0.25));
+     baseWand(Weapon).FlashChargeParticles(Class'Exep_Shield');
+@@ -6144,7 +6277,7 @@
+       break;
+       default:
+     }
+-    PlaySound(Sound(DynamicLoadObject("AllDialog." $ SpellIncantation,Class'Sound')),SLOT_Talk);
++    PlaySound(class'LanguagePicker'.static.ResolveSoundOnly(SpellIncantation, self),SLOT_Talk);
+     PlaySound(Sound'Dueling_EXP_smack',SLOT_Misc);
+     spell.Reflect(self,FMin(5.0,spell.SpellCharge + (5 - spell.SpellCharge) * 0.1),FMin(1000.0,spell.Speed + (1000 - spell.Speed) * 0.25));
+     baseWand(Weapon).FlashChargeParticles(Class'Exep_Shield');

@@ -1,0 +1,42 @@
+# Files in the Wine prefix ($GAMEDIR-relative) that this mod patches or
+# generates, but which can't live in git (stock/copyrighted content).
+# tools/snapshot_stock.sh copies them into assets/stock_patched/ (local,
+# gitignored); tools/build.sh --restore-stock copies them back.
+# Each change is described in docs/stock-patches.md.
+
+# Stock UnrealScript classes with LanguagePicker patches
+HGame/Classes/baseDialog.uc
+HGame/Classes/BaseFEPage.uc
+HGame/Classes/CauldronMixing.uc
+HGame/Classes/Characters.uc
+HGame/Classes/FEBook.uc
+HGame/Classes/FECreditsPage.uc
+HGame/Classes/FEInGamePage.uc
+HGame/Classes/FELangGrid.uc
+HGame/Classes/harry.uc
+HGame/Classes/HChar.uc
+HGame/Classes/HPawn.uc
+HGame/Classes/HPConsole.uc
+HGame/Classes/PopupTrigger.uc
+HGame/Classes/SpellLessonTrigger.uc
+HGame/Classes/VendorManager.uc
+HGame/Classes/baseConsole.uc
+HGame/Classes/FEInputPage.uc
+HGame/Classes/M212FEBindPage.uc
+HGame/Classes/StatusItem.uc
+
+# Generated / merged text data (regenerable with tools/build.sh --data)
+system/hpdialog.int
+system/BumpDialog.int
+system/HPMenu.int
+system/HpDialog.jap.backup
+system/BumpDialog.jap.backup
+system/HpDialog.rus.backup
+system/BumpDialog.rus.backup
+system/NativeLangNames.dat
+system/LangCredits.dat
+
+# Stock originals the merge script reads (written once, never overwritten)
+system/hpdialog.int.orig-backup
+system/BumpDialog.int.orig-backup
+system/HPMenu.int.orig-backup

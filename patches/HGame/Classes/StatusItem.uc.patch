@@ -1,0 +1,11 @@
+--- a/HGame/Classes/StatusItem.uc
++++ b/HGame/Classes/StatusItem.uc
+@@ -306,7 +306,7 @@
+ 
+ function string GetToolTip()
+ {
+-	return Localize("All",strToolTipId,"HPMenu");
++	return class'LanguagePicker'.static.LocalizeMenu(strToolTipId);
+ }
+ 
+ defaultproperties

@@ -1,0 +1,27 @@
+--- a/HGame/Classes/PopupTrigger.uc
++++ b/HGame/Classes/PopupTrigger.uc
+@@ -33,6 +33,24 @@
+   }
+ }
+ 
++// LanguagePicker: PopupTrigger extends Trigger, not HPawn, so the
++// DeliverLocalizedDialog call above hit Actor's English-only
++// SubstituteDialog default -- every position-triggered voice line (e.g.
++// Adv1Willow's WhompTut lines, the hub FindingMyWay/GoToGCR lines) stayed
++// English. Same hook as HPawn/harry, but only for triggers using the stock
++// dialogue data; a PopupTrigger pointed at a custom Package=/Localize=/
++// Section= keeps its stock behavior, since ResolveLine only knows the
++// AllDialog/HPdialog per-language layout.
++event SubstituteDialog(Sound InSound, String InTxt, out Sound Replacement, out String ReplacmentTxt)
++{
++  if ( (Package ~= "AllDialog") && (LocalizationFile ~= "HPDialog") && (Section ~= "All") )
++  {
++    class'LanguagePicker'.static.SubstituteDialogHelper(InSound, InTxt, Replacement, ReplacmentTxt, "AllDialog", "HPdialog", self);
++  } else {
++    Super.SubstituteDialog(InSound, InTxt, Replacement, ReplacmentTxt);
++  }
++}
++
+ defaultproperties
+ {
+      bPlayDialogSound=True

@@ -1,0 +1,20 @@
+--- a/HGame/Classes/baseConsole.uc
++++ b/HGame/Classes/baseConsole.uc
+@@ -206,7 +206,7 @@
+ 	else if(Viewport.Actor.Level.LevelAction == LEVACT_Loading || Viewport.Actor.bShowLoadingScreen || bForceLoadScreen)
+ 	{
+ 		// Omega: Reworked the function to draw a lot cleaner than before
+-		BigMessage = Localize("all","Options_0058","HPMenu");
++		BigMessage = class'LanguagePicker'.static.LocalizeMenu("Options_0058");
+ 		Viewport.Actor.bShowLoadingScreen = True;
+ 		C.Style = 1;
+ 		C.TextSize(BigMessage,fTextWidth,fTextHeight);
+@@ -280,7 +280,7 @@
+ 	} 
+ 	else if ( Viewport.Actor.Level.LevelAction == LEVACT_Saving && !bForceLoadScreen)
+ 	{
+-		BigMessage = Localize("all","Options_0057","HPMenu");
++		BigMessage = class'LanguagePicker'.static.LocalizeMenu("Options_0057");
+ 	} 
+ 	else if ( Viewport.Actor.Level.LevelAction == LEVACT_Connecting && !bForceLoadScreen)
+ 	{

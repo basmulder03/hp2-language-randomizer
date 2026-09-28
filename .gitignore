@@ -1,0 +1,21 @@
+# Extracted/raw game audio assets and other copyrighted material — local only.
+/assets
+assets/audio_source/
+assets/audio_source_raw/
+assets/build/
+*.zip
+*.iso
+*.rar
+*.uax
+*.wav
+*.ogg
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editor/OS cruft
+.vscode/
+*.swp
+.DS_Store

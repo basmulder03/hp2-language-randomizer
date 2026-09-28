@@ -1,0 +1,11 @@
+--- a/HGame/Classes/FEInputPage.uc
++++ b/HGame/Classes/FEInputPage.uc
+@@ -219,7 +219,7 @@
+ 	{
+ 		tmpStr 					= "0000" $ string(I);
+ 		tmpStr 					= "Localized_kn_" $ Right(tmpStr,4);
+-		LocalizedKeyName[I] 	= Localize("all",tmpStr,"HPMenu");
++		LocalizedKeyName[I] 	= class'LanguagePicker'.static.LocalizeMenu(tmpStr);
+ 	}
+ 	MouseSmoothText 			= "Mouse Smoothing";
+ 	MiscText 					= GetLocalFEString("Options_0042");

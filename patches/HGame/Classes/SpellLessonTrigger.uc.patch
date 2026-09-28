@@ -1,0 +1,13 @@
+--- a/HGame/Classes/SpellLessonTrigger.uc
++++ b/HGame/Classes/SpellLessonTrigger.uc
+@@ -712,7 +712,10 @@
+ 
+     // Show dialog in cut area for length of sound.
+     if (bDisplayText)
++    {
++	    class'LanguagePicker'.static.ResetToEnglish();
+ 	    playerHarry.MyHud.SetSubtitleText(strDialog, fSoundLen);
++    }
+ 
+     // Return the sound length
+ 	return (fSoundLen);

@@ -1,0 +1,24 @@
+--- a/HGame/Classes/HPConsole.uc
++++ b/HGame/Classes/HPConsole.uc
+@@ -677,6 +677,12 @@
+ 	{
+ 		return;
+ 	}
++	// LanguagePicker settings page: "allow cutscene skipping" off means
++	// the skip key does nothing (both harry.uc callers route through here).
++	if ( !class'LanguagePicker'.static.IsCutsceneSkipAllowed() )
++	{
++		return;
++	}
+ 	//AdamJD(2024):	Fixed a KW typo
+ 	harry(Viewport.Actor).ClientMessage("*****STARTING FASTFORWARD****************************");
+ 	Log("*****STARTING FASTFORWARD****************************");
+@@ -728,7 +734,7 @@
+ 	{
+ 		if ( CutSkippingString == "" )
+ 		{
+-			CutSkippingString = Localize("all","SkipCS_0001","HPMenu");
++			CutSkippingString = class'LanguagePicker'.static.LocalizeMenu("SkipCS_0001");
+ 		}
+ 		HPHud(harry(Viewport.Actor).myHUD).managerCutScene.SetCutCommentText(CutSkippingString);
+ 		HPHud(harry(Viewport.Actor).myHUD).managerCutScene.bShowFF = True;

@@ -1,0 +1,18 @@
+--- a/HGame/Classes/baseDialog.uc
++++ b/HGame/Classes/baseDialog.uc
+@@ -29,13 +29,9 @@
+ function bool FindDialog (string dialogID, out Sound dlgSound, out string DlgText)
+ {
+   local int I;
++  local string PickedLang;
+ 
+-  DlgText = Localize("all",dialogID,"HPdialog");
+-  dlgSound = Sound(DynamicLoadObject("AllDialog." $ dialogID,Class'Sound'));
+-  if ( dlgSound == None )
+-  {
+-    DlgText = "*" $ DlgText;
+-  }
++  class'LanguagePicker'.static.ResolveLine(dialogID, "AllDialog", "HPdialog", PickedLang, dlgSound, DlgText, self, 0); // 0 = LanguagePicker.LT_Dialogue
+   return True;
+ }
+ 
