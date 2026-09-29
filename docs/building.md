@@ -1,32 +1,55 @@
 # Building the mod
 
-Everything targets the Wine prefix in `tools/env.sh`
-(`~/Games/hp2-audio-randomizer-prefix` by default; override with `WINEPREFIX=` or `HP2_GAMEDIR=`).
+All tooling is one command, `hp2mod` -- `python3 tools/hp2mod.py` on
+Linux/macOS (UCC runs through Wine), `hp2mod.cmd` or the packaged
+`hp2mod.exe` on Windows. It uses only the Python standard library.
+`hp2mod paths` shows which folders it uses; override them with
+`HP2_GAMEDIR` (the M212 game folder), `HP2_ASSETS` (the private data folder)
+and, on Linux, `WINEPREFIX` (default `~/Games/hp2-audio-randomizer-prefix`).
 Close the game first: while it runs, UCC reports success without replacing
-`hgame.u`, and the scripts refuse to start.
+`hgame.u`, and the tool refuses to build.
 
 | Task | Command |
 |---|---|
-| Rebuild after changing `src/mod/**/*.uc` | `tools/build.sh` |
-| Also regenerate merged dialogue/menu text and `LangCredits.dat` | `tools/build.sh --data` |
-| First build on a fresh prefix (stock classes = clean export + `patches/`) | `tools/build.sh --apply-patches --data` |
-| Rebuild a fresh or broken prefix from the local snapshot | `tools/build.sh --restore-stock --data` |
-| Save the prefix's patched stock files + generated data locally | `tools/snapshot_stock.sh` |
-| Regenerate `patches/` after editing a stock class | `tools/make_stock_patches.sh` |
-| (Re)import one language's audio with lipsync | `tools/import_audio.sh FRE assets/build/normalized/fre` |
-| Even out loudness between languages | `python3 tools/scripts/normalize_dialog_loudness.py`, then `import_audio.sh` per language |
-| Play with the engine log | `./run-game-with-logs.sh` (log: `~/Documents/Harry - Coding Evolved/Game.log`, UTF-16) |
-| Test another aspect ratio | `./run-game-with-logs.sh --res 1200x900` (4:3) or `--res 1600x900` (16:9); the size is kept for later runs |
-| Summarize a playtest (maps, voice lines per language/type, pages opened, script problems) | `python3 tools/check_log.py` |
+| Everything from a private assets zip: extract, normalize, import all audio, build | `hp2mod install --from-zip FILE` |
+| Rebuild after changing `src/mod/**/*.uc` | `hp2mod build` |
+| Also regenerate and install the text data | `hp2mod build --data` |
+| First build on a fresh game folder (stock classes = clean export + `patches/`) | `hp2mod build --apply-patches --data` |
+| Restore from the local snapshot instead | `hp2mod build --restore-stock --data` |
+| Bundle the local assets into a private zip (never share it) | `hp2mod pack-assets [--out FILE]` |
+| Store that zip in your own S3 bucket / fetch it back (checksum-verified) | `hp2mod upload-assets`, `hp2mod download-assets` |
+| Everything from the zip in S3 | `hp2mod install --from-s3` |
+| Save the patched stock files + generated data locally | `hp2mod snapshot` |
+| Regenerate `patches/` after editing a stock class | `hp2mod make-patches` |
+| Even out loudness between languages | `hp2mod normalize` |
+| (Re)import one language's audio with lipsync | `hp2mod import-audio FRE assets/build/normalized/fre` |
+| Play with the engine log, then summarize the session | `hp2mod run` (`--res 1200x900` for 4:3; the size is kept) |
+| Summarize a Game.log | `hp2mod check-log` |
 
-`build.sh` deploys the mod classes and generated textures (`assets/build/flags`,
-`assets/build/icons`), compiles, fails on any compile error, and checks that
-`hgame.u` was rewritten and contains every mod class and the custom textures.
+S3 settings (any S3-compatible store: endpoint, bucket, region, object key,
+and the keys or commands that print them) go in `~/.config/hp2mod/s3.ini`
+or `HP2_S3_*` / `AWS_*` variables -- see `tools/scripts/s3.py`. Keep the
+bucket private: the zip is game content.
+
+The Linux shell names (`tools/build.sh`, `./run-game-with-logs.sh`, ...) are
+thin wrappers around the same commands.
+
+**Tests, packaging, releases.** `python3 -m unittest discover tests` runs the
+tool tests (no game needed). `python3 tools/package.py` (needs `pip install
+pyinstaller`) builds the single-file `dist/hp2mod(.exe)`. GitHub Actions
+(`.github/workflows/build.yml`) runs the tests on Linux and Windows, builds
+and smoke-tests `hp2mod.exe` and a Linux `hp2mod` binary on every push, and
+on a version tag (`git tag v1.0.0 && git push origin v1.0.0`) publishes a
+release with both binaries and `hp2mod.cmd`.
+
+`build` deploys the mod classes and the artwork in `art/`, compiles, fails on
+any compile error, and checks that `hgame.u` was rewritten and contains every
+mod class and the custom textures.
 
 ## What lives where
 
-- **Git:** mod classes (`src/mod`), stock-class diffs (`patches/`), tools,
-  docs. No whole stock files or extracted game content.
+- **Git:** mod classes (`src/mod`), stock-class diffs (`patches/`), the
+  generated artwork (`art/`), tools, docs. No whole stock files or extracted game content.
 - **`assets/` (local, gitignored):** extracted language sources
   (`audio_source/langs/<lang>/`), generated build output (`build/`), and
   `stock_patched/` — the snapshot of every file listed in
@@ -41,7 +64,7 @@ against the clean decompile in `assets/stock_original/HGame/Classes/`
 (local, gitignored: it's stock code). `tools/build.sh --restore-stock`
 rebuilds those classes as original + patch; the generated data files come
 from the `assets/stock_patched/` snapshot. After editing a stock class in the
-prefix, run `tools/make_stock_patches.sh` and `tools/snapshot_stock.sh`.
+prefix, run `hp2mod make-patches` and `hp2mod snapshot`.
 
 **Recreating `assets/stock_original`.** The M212 installer
 (`M212_Editor_Setup.exe`, Inno Setup) ships `System/hgame.u` compiled, not as

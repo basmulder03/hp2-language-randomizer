@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Generate the 64x32 flag textures for the language pool
-(assets/build/flags/Flag_<CODE>.png), rasterized from the vendored
+(art/flags/Flag_<CODE>.png, committed), rasterized from the vendored
 flag-icons SVGs (third_party/flag-icons, MIT). "redub" has no country, so it
 gets a drawn clapperboard (draw_redub). FlagIcons.uc imports the PNGs.
 
@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw
 
 REPO = Path(__file__).resolve().parents[2]
 SVG_DIR = REPO / "third_party/flag-icons/4x3"
-OUT_DIR = REPO / "assets/build/flags"
+OUT_DIR = REPO / "art/flags"
 W, H = 64, 32
 
 # lang_code -> ISO 3166-1 alpha-2 country code (flag-icons filename).

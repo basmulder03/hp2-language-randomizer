@@ -20,9 +20,10 @@ Usage: python3 tools/scripts/generate_lang_credits.py
 import re
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-LANGS_DIR = REPO / "assets/audio_source/langs"
-OUT_PATH = REPO / "assets/build/localization/LangCredits.dat"
+from hp2paths import LANGS_DIR, LOCALIZATION_DIR
+from merge_dialog_text import POLISH_TRANSLITERATION
+
+OUT_PATH = LOCALIZATION_DIR / "LangCredits.dat"
 
 # Pool order (LanguagePicker.LangCodes), dubbed languages with a credits
 # file. usa/int are the stock credits themselves; pol and redub have none.
@@ -37,6 +38,7 @@ BLOCKS = {
     "ita": ("/bLocalizzazione italiana", "/bWarner Bros. Interactive Entertainment"),
     "jap": ("/bElectronic Arts Square ", None),  # trailing space is in the file
     "nor": ("/bLokalisering til norsk", "/bWarner Bros. Interactive Entertainment"),
+    "pol": ("/bLokalizacja - Polska - Cenega Poland", "/bWarner Bros. Interactive Entertainment"),
     "por": ("/bEquipa de Localização", "/bWarner Bros. Interactive Entertainment"),
     "rus": ("/bЛокализация для России", "/bWarner Bros. Interactive Entertainment"),
     "spa": ("/bEquipo de Localización España", "/bWarner Bros. Interactive Entertainment"),
@@ -44,11 +46,14 @@ BLOCKS = {
 }
 
 
-def credits_file(lang: str) -> Path:
-    matches = [p for p in (LANGS_DIR / lang).iterdir() if p.name.lower() == f"hpcredits.{lang}"]
-    if len(matches) != 1:
-        raise SystemExit(f"{lang}: expected one HPCredits.{lang}, found {matches}")
-    return matches[0]
+def credits_file(lang: str) -> Path | None:
+    """The language's credits file, or None if it isn't there (any subset of
+    languages is fine)."""
+    folder = LANGS_DIR / lang
+    matches = [p for p in folder.iterdir() if p.name.lower() == f"hpcredits.{lang}"] if folder.is_dir() else []
+    if len(matches) > 1:
+        raise SystemExit(f"{lang}: more than one HPCredits.{lang}: {matches}")
+    return matches[0] if matches else None
 
 
 def read_lines(path: Path) -> list[str]:
@@ -83,7 +88,14 @@ def extract(lang: str) -> list[str]:
 def main():
     out = []
     for lang in BLOCKS:
+        if credits_file(lang) is None:
+            print(f"{lang}: no HPCredits.{lang}, skipped")
+            continue
         block = extract(lang)
+        if lang == "pol":
+            # ą/ł/ż... aren't in the menu fonts; same transliteration as the
+            # Polish subtitles.
+            block = [line.translate(POLISH_TRANSLITERATION) for line in block]
         out.extend(f"{lang}|{line}" for line in block)
         out.append(f"{lang}|")
         print(f"{lang}: {len(block)} lines")

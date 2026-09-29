@@ -3,7 +3,7 @@
 Drawn to match the stock HP2_Menu.Icons style (64x64 RGBA, art in the
 top-left 48x48: gold ring around a
 dark navy disc, symbol overlapping the rim, soft drop shadow): two overlapping
-speech bubbles. Output goes to assets/build/icons/, which is deployed to
+speech bubbles. Output goes to art/icons/ (committed), deployed to
 $GAMEDIR/HGame/Textures/LangPicker/ and imported by MenuIcons.uc.
 
 Usage: python3 tools/scripts/generate_menu_icons.py
@@ -11,7 +11,7 @@ Usage: python3 tools/scripts/generate_menu_icons.py
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-OUT_DIR = REPO / "assets/build/icons"
+OUT_DIR = REPO / "art/icons"
 
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 import math

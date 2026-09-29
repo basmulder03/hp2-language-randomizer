@@ -39,28 +39,26 @@ files. To build the mod you need:
 - The **localized releases** whose dubs you want (your own copies). The mod
   works with any subset; languages you don't have are simply not in the
   pool.
-- **Linux with Wine** (developed with Wine 11), Python 3, `patch`, `7z`,
-  `unshield`, and Pillow + CairoSVG for the flag/icon generators. Windows
-  isn't tested; the UnrealScript side is platform-independent, the scripts
-  are bash.
+- **Python 3** (standard library only) -- or, on Windows, the packaged
+  `hp2mod.exe`, which needs nothing. On Linux/macOS the game and its UCC
+  compiler run under **Wine**.
 
 ## Building
 
-Short version (details in [`docs/building.md`](docs/building.md)):
+All steps go through one tool, `hp2mod` (`python3 tools/hp2mod.py`, or
+`hp2mod.cmd` / `hp2mod.exe` on Windows). Details in
+[`docs/building.md`](docs/building.md):
 
-1. Install M212 into a Wine prefix (default
-   `~/Games/hp2-audio-randomizer-prefix`, override with `WINEPREFIX`).
-2. Export the clean game source once into `assets/stock_original/`
-   (`ucc batchexport hgame Class uc`, see `docs/building.md`).
-3. Extract the languages you own into `assets/audio_source/langs/<lang>/`
+1. Install M212 and export the clean game source once into
+   `assets/stock_original/` (see `docs/building.md`).
+2. Extract the languages you own into `assets/audio_source/langs/<lang>/`
    ([`docs/extracting-languages.md`](docs/extracting-languages.md)).
-4. Generate artwork: `python3 tools/scripts/generate_flags.py` and
-   `python3 tools/scripts/generate_menu_icons.py`.
-5. Audio: `python3 tools/scripts/normalize_dialog_loudness.py`, then
-   `tools/import_audio.sh <LANG> assets/build/normalized/<lang>` per language.
-6. Build: `tools/build.sh --apply-patches --data`.
-7. Play: `./run-game-with-logs.sh` (add `--res 1200x900` for 4:3), and
-   afterwards `python3 tools/check_log.py` for a summary of the session.
+3. `hp2mod install` -- normalizes loudness, imports every language's audio
+   with lipsync, applies the stock patches and builds. (`hp2mod pack-assets`
+   bundles steps 1–2 into a private zip; `hp2mod install --from-zip FILE`
+   restores from it.)
+4. `hp2mod run` to play with logging (`--res 1200x900` for 4:3); it
+   summarizes the session afterwards.
 
 ## Repository layout
 
@@ -68,7 +66,8 @@ Short version (details in [`docs/building.md`](docs/building.md)):
 |---|---|
 | `src/mod/HGame/Classes/` | The mod's own UnrealScript classes (`LanguagePicker` is the core) |
 | `patches/HGame/Classes/` | Diffs for the stock game classes the mod hooks into |
-| `tools/` | Build, import, snapshot and log tools; `tools/scripts/` for data generators |
+| `tools/` | `hp2mod.py` (the build/install tool) and `tools/scripts/` (data generators) |
+| `art/` | Generated flag and menu-icon artwork |
 | `docs/` | Design, stock patches, building, extracting languages |
 | `third_party/flag-icons/` | Flag artwork (MIT) |
 

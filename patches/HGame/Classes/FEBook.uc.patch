@@ -36,19 +36,19 @@
  			//bShowBackground = True;
  			//curBackground = Back1Background;
  			
-@@ -375,6 +383,12 @@
+@@ -374,6 +382,12 @@
+ 			break;
  		case "SOUNDVIDEO":
  			Return SoundVideoPage;
- 			break;
++			break;
 +		case "LANGRANDOMIZER":
 +			Return LangRandomizerPage;
 +			break;
 +		case "LANGSTATS":
 +			Return LangStatsPage;
-+			break;
+ 			break;
  		case "LANG":
  		case "LANGUAGE":
- 			Return LangPage;
 @@ -480,6 +494,12 @@
  	SoundVideoPage = baseFEPage(CreateWindow(Class'FESoundVideoPage', 0.0, 0.0, WinWidth, WinHeight));
  	SoundVideoPage.book = self;

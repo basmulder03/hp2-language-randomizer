@@ -19,3 +19,8 @@ __pycache__/
 .vscode/
 *.swp
 .DS_Store
+
+# PyInstaller output (tools/package.py)
+/build/
+/dist/
+/*.spec

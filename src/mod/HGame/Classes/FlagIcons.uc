@@ -4,7 +4,7 @@
 // Holder class for the language flag textures, imported into HGame as
 // HGame.Flags.Flag_<CODE> (see LanguagePicker.GetFlagTexture).
 //
-// - Sources are PNG (tools/scripts/generate_flags.py -> assets/build/flags),
+// - Sources are PNG (tools/scripts/generate_flags.py -> art/flags),
 //   copied by tools/build.sh to HGame/Textures/Flags/. #exec paths resolve
 //   relative to the package folder (HGame/), not System/; a missing file
 //   only gives an ExecWarning while `ucc make` still reports success.

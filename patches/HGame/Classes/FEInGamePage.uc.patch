@@ -41,17 +41,17 @@
  			case QuitButton:
  				ConfirmQuit = doHPMessageBox(GetLocalFEString("InGameMenu_0026"), GetLocalFEString("Shared_Menu_0003"), GetLocalFEString("Shared_Menu_0004"));
  				break;
-@@ -566,6 +586,10 @@
- 					SetRollover(SoundVideoButton,textureSoundRO,soundBottomRO,True);
- 					break;
+@@ -564,6 +584,10 @@
  				
-+				case LangRandomizerButton:
-+					SetRollover(LangRandomizerButton,textureLangRandomizerRO,soundBottomRO,False);
+ 				case SoundVideoButton:
+ 					SetRollover(SoundVideoButton,textureSoundRO,soundBottomRO,True);
 +					break;
 +				
- 				case FolioButton:
- 					SetRollover(FolioButton,textureFolioRO,soundFolioRO,False);
++				case LangRandomizerButton:
++					SetRollover(LangRandomizerButton,textureLangRandomizerRO,soundBottomRO,False);
  					break;
+ 				
+ 				case FolioButton:
 @@ -592,6 +616,7 @@
  					case QuitButton:
  					case InputButton:

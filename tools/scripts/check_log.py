@@ -1,7 +1,7 @@
 """Summarize a playtest from the engine log.
 
-Usage: python3 tools/check_log.py [path/to/Game.log]
-Default log: ~/Documents/Harry - Coding Evolved/Game.log (UTF-16).
+Usage: python3 tools/hp2mod.py check-log [path/to/Game.log]
+Default: Game.log in the game's Documents folder (UTF-16).
 
 Reports maps visited, voice lines played (from LanguagePicker.Played lines:
 per language, per line type, English-fallback count), the language pages
@@ -12,7 +12,9 @@ import re
 import sys
 from pathlib import Path
 
-DEFAULT_LOG = Path.home() / "Documents/Harry - Coding Evolved/Game.log"
+from hp2paths import documents_dir
+
+DEFAULT_LOG = documents_dir() / "Game.log"
 LINE_TYPES = ["dialogue", "cutscene", "chatter", "trigger", "spell"]
 PROBLEMS = re.compile(r"Accessed None|Runaway loop|Infinite script recursion|Critical:|"
                       r"Failed to load|out of bounds|Script call stack|General protection", re.I)
@@ -27,8 +29,9 @@ def read_log(path: Path) -> list[str]:
     return text.splitlines()
 
 
-def main():
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_LOG
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    path = Path(argv[0]) if argv else DEFAULT_LOG
     lines = read_log(path)
     opened = next((l.split("open,", 1)[1].strip() for l in lines if "Log file open," in l), "?")
     print(f"log: {path}  (session {opened})")

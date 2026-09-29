@@ -1,0 +1,83 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests (standard library only)
+        run: python -m unittest discover tests -v
+
+  package:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            binary: hp2mod.exe
+            asset: hp2mod.exe
+          - os: ubuntu-latest
+            binary: hp2mod
+            asset: hp2mod-linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the single-file tool
+        run: |
+          python -m pip install pyinstaller
+          python tools/package.py
+      - name: Smoke test
+        shell: bash
+        run: |
+          ./dist/${{ matrix.binary }} --help
+          ./dist/${{ matrix.binary }} paths
+          ./dist/${{ matrix.binary }} build --help
+          # No game on the runner: build must fail cleanly with a clear message.
+          if ./dist/${{ matrix.binary }} build; then echo "expected a missing-game error"; exit 1; fi
+      - name: Name the artifact
+        shell: bash
+        run: mv "dist/${{ matrix.binary }}" "dist/${{ matrix.asset }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist/${{ matrix.asset }}
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            artifacts/hp2mod.exe/hp2mod.exe artifacts/hp2mod-linux/hp2mod-linux hp2mod.cmd \
+            --title "${GITHUB_REF_NAME}" --generate-notes

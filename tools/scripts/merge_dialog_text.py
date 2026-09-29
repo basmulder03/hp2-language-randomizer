@@ -7,10 +7,7 @@ import os
 import re
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-# Same defaults/overrides as tools/env.sh.
-GAMEDIR = Path(os.environ.get("HP2_GAMEDIR") or
-               Path(os.environ.get("WINEPREFIX") or Path.home() / "Games/hp2-audio-randomizer-prefix") / "drive_c/HP2Mod")
+from hp2paths import LANGS_DIR, LOCALIZATION_DIR, find_file, system_dir
 
 ENCODINGS = {
     "jap": "utf-8",
@@ -46,7 +43,7 @@ POLISH_TRANSLITERATION = str.maketrans({
 LANGS = ["bra", "dan", "dut", "fin", "fre", "ger", "int", "ita", "jap", "nor", "pol", "por", "redub", "rus", "spa", "swe", "usa"]
 
 # Actual on-disk filenames -- note hpdialog.int is lowercase in
-# $GAMEDIR/system (confirmed via `ls`), unlike BumpDialog.int. And the
+# the game's System folder, unlike BumpDialog.int. And the
 # per-language source files use "HpDialog.<lang>" (lowercase p), not
 # "HPdialog.<lang>". Wine itself is case-insensitive but this script reads
 # directly off the native Linux filesystem, which is case-sensitive, so the
@@ -63,16 +60,16 @@ SRC_STEMS = {
 }
 # Menu text (LanguagePicker.LocalizeMenu) is drawn with the stock bitmap
 # menu fonts, which have no Japanese/Cyrillic glyphs -- so jap/rus are left
-# out, and pol has no HpMenu source. redub is included but only ever picked
-# while it's enabled (PickWeightedLang's gate).
+# out. pol is transliterated like its dialogue. redub is included but only
+# ever picked while it's enabled (PickWeightedLang's gate).
 LANGS_FOR = {
-    "HPMenu.int": ["bra", "dan", "dut", "fin", "fre", "ger", "int", "ita", "nor", "por", "redub", "spa", "swe", "usa"],
+    "HPMenu.int": ["bra", "dan", "dut", "fin", "fre", "ger", "int", "ita", "nor", "pol", "por", "redub", "spa", "swe", "usa"],
 }
 
 
 def find_source(lang: str, stem: str) -> Path | None:
     # Case-insensitive: sources are e.g. "HpMenu.fre" but "HPMenu.int".
-    folder = REPO / "assets" / "audio_source" / "langs" / lang
+    folder = LANGS_DIR / lang
     want = f"{stem}.{lang}".lower()
     if not folder.is_dir():
         return None
@@ -110,8 +107,8 @@ def merge(filename: str, out_path: Path):
     # merging into it again would duplicate every "_LANG" entry. build.sh
     # writes the backup once, before the first install.
     base_name = BASE_FILENAMES[filename]
-    backup_path = GAMEDIR / "system" / f"{base_name}.orig-backup"
-    base_path = backup_path if backup_path.exists() else GAMEDIR / "system" / base_name
+    backup_path = find_file(system_dir(), f"{base_name}.orig-backup")
+    base_path = backup_path if backup_path.exists() else find_file(system_dir(), base_name)
     base_lines = base_path.read_text(encoding=DEFAULT_ENCODING, errors="replace").splitlines()
 
     # (line, lang) pairs -- lang is None for the base/usa/int content, which
@@ -145,7 +142,7 @@ def merge(filename: str, out_path: Path):
 
 
 if __name__ == "__main__":
-    out_dir = REPO / "assets" / "build" / "localization"
+    out_dir = LOCALIZATION_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
     merge("HPdialog.int", out_dir / "HPdialog.int")
     merge("BumpDialog.int", out_dir / "BumpDialog.int")

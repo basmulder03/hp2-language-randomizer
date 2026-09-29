@@ -23,9 +23,9 @@ import sys
 import wave
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-LANGS_DIR = REPO / "assets/audio_source/langs"
-OUT_DIR = REPO / "assets/build/normalized"
+from hp2paths import LANGS_DIR, BUILD_DIR
+
+OUT_DIR = BUILD_DIR / "normalized"
 REFERENCE_ONLY = {"usa", "int"}
 MIN_ADJUST_DB = 0.5  # smaller differences aren't worth a re-import
 WINDOW = 1102        # ~50 ms at 22050 Hz
@@ -82,12 +82,12 @@ def write_scaled(src: Path, dst: Path, gain_db: float) -> bool:
     return limited
 
 
-def main():
+def main(argv=None):
     langs = sorted(p.name for p in LANGS_DIR.iterdir() if wav_files(p.name))
     medians = {lang: language_median(lang) for lang in langs}
     reference = statistics.median(medians.values())
     print(f"reference (median of languages): {reference:.1f} dBFS")
-    wanted = set(sys.argv[1:]) or set(langs)
+    wanted = set(sys.argv[1:] if argv is None else argv) or set(langs)
     for lang in langs:
         gain = reference - medians[lang]
         note = ""

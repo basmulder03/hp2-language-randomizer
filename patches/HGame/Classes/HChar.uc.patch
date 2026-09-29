@@ -14,10 +14,11 @@
  	//sSayText = Localize("all",sSayTextID,"BumpDialog");
 -	sSayText = Localize(Section,sSayTextID,LocalizationFile);
 -	if ( InStr(sSayText,"<?") > -1 )
-+	if ( Package == "AllDialog" && LocalizationFile == "BumpDialog" )
- 	{
+-	{
 -		Level.PlayerHarryActor.ClientMessage("ERROR BUMPLINES:" $ string(self) $ " couldn't find BumpLine ID:" $ sSayTextID $ " from BumpLineSet:" $ BumpLineSet);
 -		return;
++	if ( Package == "AllDialog" && LocalizationFile == "BumpDialog" )
++	{
 +		class'LanguagePicker'.static.ResolveLine(sSayTextID, Package, LocalizationFile, PickedLang, dlgSound, sSayText, self, 2); // 2 = LanguagePicker.LT_Chatter
 +	}
 +	else

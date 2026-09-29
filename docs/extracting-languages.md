@@ -43,6 +43,5 @@ files are romanized) and `rus` its text in cp1251.
    subtitle-only release has byte-identical `.wav` files (only ~15-50
    non-speech sounds should match).
 
-Then build: `tools/import_audio.sh` per language (after
-`normalize_dialog_loudness.py`, which evens out volume between languages),
-and `tools/build.sh --data`.
+Then run `hp2mod install` (normalizes loudness, imports every language's
+audio with lipsync, builds).

@@ -5,7 +5,9 @@ format as the native-text files: BOM + UTF-16LE + CRLF, an "[All]" line,
 then KEY=VALUE lines. Installed by tools/build.sh --data."""
 from pathlib import Path
 
-OUT_PATH = Path(__file__).resolve().parents[2] / "assets/build/localization/NativeLangNames.dat"
+from hp2paths import LOCALIZATION_DIR
+
+OUT_PATH = LOCALIZATION_DIR / "NativeLangNames.dat"
 
 ENTRIES = {
     "jap": "日本語",

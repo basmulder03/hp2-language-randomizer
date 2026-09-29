@@ -13,9 +13,7 @@ Usage: python3 tools/scripts/generate_native_text.py
 """
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-LANGS = REPO / "assets/audio_source/langs"
-OUT = REPO / "assets/build/localization"
+from hp2paths import LANGS_DIR as LANGS, LOCALIZATION_DIR as OUT
 
 
 def write_utf16(lines: list[str], path: Path):
